@@ -1,5 +1,8 @@
 import { AgentContentView } from '@/components/AgentContentView';
 import { AgentInput } from '@/components/AgentInput';
+import { StatusTopBar } from '@/components/StatusTopBar';
+import { StatusBottomBar } from '@/components/StatusBottomBar';
+import { useStatuslineData } from '@/hooks/useStatuslineData';
 import { layout } from '@/components/layout';
 import {
     getAvailableModels,
@@ -248,6 +251,7 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
 
     const sessionStatus = useSessionStatus(session);
     const sessionUsage = useSessionUsage(sessionId);
+    const statuslineData = useStatuslineData(sessionId);
     const alwaysShowContextSize = useSetting('alwaysShowContextSize');
     const experiments = useSetting('experiments');
     const expResumeSession = useSetting('expResumeSession');
@@ -473,11 +477,13 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
 
             {/* Main content area - no padding since header is overlay */}
             <View style={{ flexBasis: 0, flexGrow: 1, paddingBottom: safeArea.bottom + ((isRunningOnMac() || Platform.OS === 'web') ? 8 : 0) }}>
+                <StatusTopBar data={statuslineData} />
                 <AgentContentView
                     content={content}
                     input={input}
                     placeholder={placeholder}
                 />
+                <StatusBottomBar data={statuslineData} />
             </View >
 
             {/* Back button for landscape phone mode when header is hidden */}
