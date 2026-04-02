@@ -2,7 +2,9 @@ import { AgentContentView } from '@/components/AgentContentView';
 import { AgentInput } from '@/components/AgentInput';
 import { StatusTopBar } from '@/components/StatusTopBar';
 import { StatusBottomBar } from '@/components/StatusBottomBar';
+import { StatusDetailSheet } from '@/components/StatusDetailSheet';
 import { useStatuslineData } from '@/hooks/useStatuslineData';
+import type { StatusDetailField } from '@/components/StatusDetailSheet';
 import { layout } from '@/components/layout';
 import {
     getAvailableModels,
@@ -252,6 +254,9 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
     const sessionStatus = useSessionStatus(session);
     const sessionUsage = useSessionUsage(sessionId);
     const statuslineData = useStatuslineData(sessionId);
+    const showStatusDetail = React.useCallback((field: StatusDetailField) => {
+        Modal.show({ component: StatusDetailSheet, props: { field, data: statuslineData } });
+    }, [statuslineData]);
     const alwaysShowContextSize = useSetting('alwaysShowContextSize');
     const experiments = useSetting('experiments');
     const expResumeSession = useSetting('expResumeSession');
@@ -477,13 +482,22 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
 
             {/* Main content area - no padding since header is overlay */}
             <View style={{ flexBasis: 0, flexGrow: 1, paddingBottom: safeArea.bottom + ((isRunningOnMac() || Platform.OS === 'web') ? 8 : 0) }}>
-                <StatusTopBar data={statuslineData} />
+                <StatusTopBar
+                    data={statuslineData}
+                    onPressModel={() => showStatusDetail('model')}
+                    onPressBranch={() => showStatusDetail('branch')}
+                    onPressCwd={() => showStatusDetail('cwd')}
+                />
                 <AgentContentView
                     content={content}
                     input={input}
                     placeholder={placeholder}
                 />
-                <StatusBottomBar data={statuslineData} />
+                <StatusBottomBar
+                    data={statuslineData}
+                    onPressTokens={() => showStatusDetail('tokens')}
+                    onPressApprovals={() => showStatusDetail('approvals')}
+                />
             </View >
 
             {/* Back button for landscape phone mode when header is hidden */}
