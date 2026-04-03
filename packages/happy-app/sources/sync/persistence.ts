@@ -9,7 +9,7 @@ const mmkv = new MMKV();
 const NEW_SESSION_DRAFT_KEY = 'new-session-draft-v1';
 const REGISTERED_PUSH_TOKEN_KEY = 'registered-push-token-v1';
 
-export type NewSessionAgentType = 'claude' | 'codex' | 'gemini' | 'openclaw';
+export type NewSessionAgentType = 'claude' | 'codex' | 'gemini' | 'openclaw' | 'glm' | 'openrouter';
 export type NewSessionSessionType = 'simple' | 'worktree';
 
 export interface NewSessionDraft {
