@@ -28,3 +28,11 @@ export interface ClaudeAuthTokens {
     token: string;
     expires: number;
 }
+
+export interface GlmAuthTokens {
+    apiKey: string;
+}
+
+export interface OpenRouterAuthTokens {
+    apiKey: string;
+}

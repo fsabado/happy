@@ -8,6 +8,8 @@ export interface CLIAvailability {
   codex: boolean;
   gemini: boolean;
   openclaw: boolean;
+  glm: boolean;
+  openrouter: boolean;
   detectedAt: number;
 }
 
@@ -44,7 +46,8 @@ function detectPosix(): CLIAvailability {
   const openclawEnv = !!process.env.OPENCLAW_GATEWAY_URL;
   const openclaw = openclawCommand || openclawConfig || openclawEnv;
 
-  return { claude, codex, gemini, openclaw, detectedAt: Date.now() };
+  // GLM and OpenRouter are built into happy-cli — always available
+  return { claude, codex, gemini, openclaw, glm: true, openrouter: true, detectedAt: Date.now() };
 }
 
 function detectWindows(): CLIAvailability {
@@ -67,5 +70,6 @@ function detectWindows(): CLIAvailability {
   const openclawEnv = !!process.env.OPENCLAW_GATEWAY_URL;
   const openclaw = openclawCommand || openclawConfig || openclawEnv;
 
-  return { claude, codex, gemini, openclaw, detectedAt: Date.now() };
+  // GLM and OpenRouter are built into happy-cli — always available
+  return { claude, codex, gemini, openclaw, glm: true, openrouter: true, detectedAt: Date.now() };
 }

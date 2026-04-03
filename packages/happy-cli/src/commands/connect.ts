@@ -7,7 +7,10 @@ import { ApiClient } from '@/api/api';
 import { authenticateCodex } from './connect/authenticateCodex';
 import { authenticateClaude } from './connect/authenticateClaude';
 import { authenticateGemini } from './connect/authenticateGemini';
+import { authenticateGlm } from './connect/authenticateGlm';
+import { authenticateOpenRouter } from './connect/authenticateOpenRouter';
 import { decodeJwtPayload } from './connect/utils';
+import { saveLocalVendorToken, getLocalVendorToken } from '@/utils/localVendorTokens';
 
 /**
  * Handle connect subcommand
@@ -36,6 +39,12 @@ export async function handleConnectCommand(args: string[]): Promise<void> {
         case 'gemini':
             await handleConnectVendor('gemini', 'Gemini');
             break;
+        case 'glm':
+            await handleConnectVendor('glm', 'GLM (Zhipu AI)');
+            break;
+        case 'openrouter':
+            await handleConnectVendor('openrouter', 'OpenRouter');
+            break;
         case 'status':
             await handleConnectStatus();
             break;
@@ -54,6 +63,8 @@ ${chalk.bold('Usage:')}
   happy connect codex        Store your Codex API key in Happy cloud
   happy connect claude       Store your Anthropic API key in Happy cloud
   happy connect gemini       Store your Gemini API key in Happy cloud
+  happy connect glm          Store your Zhipu AI (GLM) API key in Happy cloud
+  happy connect openrouter   Store your OpenRouter API key in Happy cloud
   happy connect status       Show connection status for all vendors
   happy connect help         Show this help message
 
@@ -66,6 +77,8 @@ ${chalk.bold('Examples:')}
   happy connect codex
   happy connect claude
   happy connect gemini
+  happy connect glm
+  happy connect openrouter
   happy connect status
 
 ${chalk.bold('Notes:')} 
@@ -75,7 +88,7 @@ ${chalk.bold('Notes:')}
 `);
 }
 
-async function handleConnectVendor(vendor: 'codex' | 'claude' | 'gemini', displayName: string): Promise<void> {
+async function handleConnectVendor(vendor: 'codex' | 'claude' | 'gemini' | 'glm' | 'openrouter', displayName: string): Promise<void> {
     console.log(chalk.bold(`\n🔌 Connecting ${displayName} to Happy cloud\n`));
 
     // Check if authenticated
@@ -107,10 +120,20 @@ async function handleConnectVendor(vendor: 'codex' | 'claude' | 'gemini', displa
         const geminiAuthTokens = await authenticateGemini();
         await api.registerVendorToken('gemini', { oauth: geminiAuthTokens });
         console.log('✅ Gemini token registered with server');
-        
+
         // Also update local Gemini config to keep tokens in sync
         updateLocalGeminiCredentials(geminiAuthTokens);
-        
+
+        process.exit(0);
+    } else if (vendor === 'glm') {
+        const glmTokens = await authenticateGlm();
+        saveLocalVendorToken('zhipu', glmTokens.apiKey);
+        console.log('✅ Zhipu AI (GLM) API key saved locally');
+        process.exit(0);
+    } else if (vendor === 'openrouter') {
+        const openRouterTokens = await authenticateOpenRouter();
+        saveLocalVendorToken('openrouter', openRouterTokens.apiKey);
+        console.log('✅ OpenRouter API key saved locally');
         process.exit(0);
     } else {
         throw new Error(`Unsupported vendor: ${vendor}`);
@@ -134,32 +157,27 @@ async function handleConnectStatus(): Promise<void> {
     // Create API client
     const api = await ApiClient.create(credentials);
 
-    // Check each vendor
-    const vendors: Array<{ key: 'openai' | 'anthropic' | 'gemini'; name: string; display: string }> = [
-        { key: 'gemini', name: 'Gemini', display: 'Google Gemini' },
-        { key: 'openai', name: 'Codex', display: 'OpenAI Codex' },
-        { key: 'anthropic', name: 'Claude', display: 'Anthropic Claude' },
+    // Cloud-stored vendors (OAuth-based)
+    const cloudVendors: Array<{ key: 'openai' | 'anthropic' | 'gemini'; display: string }> = [
+        { key: 'gemini', display: 'Google Gemini' },
+        { key: 'openai', display: 'OpenAI Codex' },
+        { key: 'anthropic', display: 'Anthropic Claude' },
     ];
 
-    for (const vendor of vendors) {
+    for (const vendor of cloudVendors) {
         try {
             const token = await api.getVendorToken(vendor.key);
-            
-            if (token?.oauth) {
-                // Try to extract user info from id_token (JWT)
+            const tokenData = token as Record<string, unknown> | null;
+            if (tokenData?.oauth) {
+                const oauth = tokenData.oauth as Record<string, unknown>;
                 let userInfo = '';
-                
-                if (token.oauth.id_token) {
-                    const payload = decodeJwtPayload(token.oauth.id_token);
-                    if (payload?.email) {
-                        userInfo = chalk.gray(` (${payload.email})`);
-                    }
+                if (typeof oauth.id_token === 'string') {
+                    const payload = decodeJwtPayload(oauth.id_token);
+                    if (payload?.email) userInfo = chalk.gray(` (${payload.email})`);
                 }
-                
-                // Check if token might be expired
-                const expiresAt = token.oauth.expires_at || (token.oauth.expires_in ? Date.now() + token.oauth.expires_in * 1000 : null);
+                const expiresAt = (oauth.expires_at as number | undefined)
+                    || (typeof oauth.expires_in === 'number' ? Date.now() + oauth.expires_in * 1000 : null);
                 const isExpired = expiresAt && expiresAt < Date.now();
-                
                 if (isExpired) {
                     console.log(`  ${chalk.yellow('⚠️')}  ${vendor.display}: ${chalk.yellow('expired')}${userInfo}`);
                 } else {
@@ -169,6 +187,21 @@ async function handleConnectStatus(): Promise<void> {
                 console.log(`  ${chalk.gray('○')}  ${vendor.display}: ${chalk.gray('not connected')}`);
             }
         } catch {
+            console.log(`  ${chalk.gray('○')}  ${vendor.display}: ${chalk.gray('not connected')}`);
+        }
+    }
+
+    // Locally-stored vendors (API key-based)
+    const localVendors: Array<{ key: string; display: string }> = [
+        { key: 'zhipu', display: 'Zhipu AI (GLM)' },
+        { key: 'openrouter', display: 'OpenRouter' },
+    ];
+
+    for (const vendor of localVendors) {
+        const token = getLocalVendorToken(vendor.key);
+        if (token?.apiKey) {
+            console.log(`  ${chalk.green('✓')}  ${vendor.display}: ${chalk.green('connected')} ${chalk.gray('(local)')}`);
+        } else {
             console.log(`  ${chalk.gray('○')}  ${vendor.display}: ${chalk.gray('not connected')}`);
         }
     }
