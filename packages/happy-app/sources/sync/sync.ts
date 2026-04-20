@@ -168,6 +168,24 @@ class Sync {
                 this.maybeStartBackgroundSendWatchdog();
             }
         });
+
+        // On web, push notifications are not supported. Re-sync all data when
+        // the user returns to the tab so stale state is refreshed automatically.
+        if (Platform.OS === 'web' && typeof document !== 'undefined') {
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    log.log('🌐 Tab became visible — invalidating all syncs');
+                    this.purchasesSync.invalidate();
+                    this.profileSync.invalidate();
+                    this.machinesSync.invalidate();
+                    this.sessionsSync.invalidate();
+                    this.artifactsSync.invalidate();
+                    this.friendsSync.invalidate();
+                    this.friendRequestsSync.invalidate();
+                    this.feedSync.invalidate();
+                }
+            });
+        }
     }
 
     async create(credentials: AuthCredentials, encryption: Encryption) {
@@ -799,6 +817,17 @@ class Sync {
 
     public refreshSessions = async () => {
         return this.sessionsSync.invalidateAndAwait();
+    }
+
+    public invalidateAll = () => {
+        this.purchasesSync.invalidate();
+        this.profileSync.invalidate();
+        this.machinesSync.invalidate();
+        this.sessionsSync.invalidate();
+        this.artifactsSync.invalidate();
+        this.friendsSync.invalidate();
+        this.friendRequestsSync.invalidate();
+        this.feedSync.invalidate();
     }
 
     public getCredentials() {
