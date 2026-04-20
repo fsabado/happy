@@ -11,6 +11,11 @@ on:
       - 'package.json'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
+    inputs:
+      server_url:
+        description: "Backend server URL to bake into the bundle (empty = public default)"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -26,7 +31,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      EXPO_PUBLIC_HAPPY_SERVER_URL: https://happy-api.fsabado.com
+      # Empty = app uses its built-in default (public Happy server).
+      # Set via workflow_dispatch input or change here once you self-host a backend.
+      EXPO_PUBLIC_HAPPY_SERVER_URL: ${{ inputs.server_url }}
       SKIP_HAPPY_WIRE_BUILD: "1"
       NODE_OPTIONS: --max-old-space-size=4096
     steps:
