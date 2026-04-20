@@ -831,6 +831,11 @@ class Sync {
         this.feedSync.invalidate();
     }
 
+    public invalidateHomeData = () => {
+        this.sessionsSync.invalidate();
+        this.machinesSync.invalidate();
+    }
+
     public getCredentials() {
         return this.credentials;
     }
