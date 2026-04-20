@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, TextInput, Text, TouchableOpacity } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity, Platform } from 'react-native';
 import { RoundButton } from './RoundButton';
 import { useConnectTerminal } from '@/hooks/useConnectTerminal';
 import { trackConnectAttempt } from '@/track';
@@ -9,7 +9,8 @@ import { t } from '@/text';
 export const ConnectButton = React.memo(() => {
     const { connectTerminal, connectWithUrl, isLoading } = useConnectTerminal();
     const [manualUrl, setManualUrl] = React.useState('');
-    const [showManualEntry, setShowManualEntry] = React.useState(false);
+    // On web, camera scanner is unavailable — show paste-URL immediately.
+    const [showManualEntry, setShowManualEntry] = React.useState(Platform.OS === 'web');
 
     const handleConnect = async () => {
         trackConnectAttempt();
