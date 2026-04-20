@@ -10,6 +10,7 @@ import { getServerInfo } from '@/sync/serverConfig';
 import { Image } from 'expo-image';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { t } from '@/text';
+import { sync } from '@/sync/sync';
 
 const stylesheet = StyleSheet.create((theme, runtime) => ({
     headerButton: {
@@ -118,15 +119,30 @@ function HeaderRight() {
     const router = useRouter();
     const styles = stylesheet;
     const { theme } = useUnistyles();
+    const socketStatus = useSocketStatus();
+
+    const showRefresh = Platform.OS === 'web'
+        && (socketStatus.status === 'disconnected' || socketStatus.status === 'connecting');
 
     return (
-        <Pressable
-            onPress={() => router.navigate('/new')}
-            hitSlop={15}
-            style={styles.headerButton}
-        >
-            <Ionicons name="add-outline" size={28} color={theme.colors.header.tint} />
-        </Pressable>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            {showRefresh && (
+                <Pressable
+                    onPress={() => sync.invalidateAll()}
+                    hitSlop={15}
+                    style={styles.headerButton}
+                >
+                    <Ionicons name="refresh-outline" size={24} color={theme.colors.header.tint} />
+                </Pressable>
+            )}
+            <Pressable
+                onPress={() => router.navigate('/new')}
+                hitSlop={15}
+                style={styles.headerButton}
+            >
+                <Ionicons name="add-outline" size={28} color={theme.colors.header.tint} />
+            </Pressable>
+        </View>
     );
 }
 
