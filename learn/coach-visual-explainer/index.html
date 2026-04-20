@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Learn Happy — Coach Visual Explainer (Hub)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Fragment+Mono:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ctp-base: #24273a;
+      --ctp-mantle: #1e2030;
+      --ctp-crust: #181926;
+      --ctp-surface0: #363a4f;
+      --ctp-surface1: #494d64;
+      --ctp-text: #cad3f5;
+      --ctp-subtext0: #a5adcb;
+      --ctp-subtext1: #b8c0e0;
+      --ctp-blue: #8aadf4;
+      --ctp-teal: #8bd5ca;
+      --ctp-green: #a6da95;
+      --ctp-peach: #f5a97f;
+      --ctp-mauve: #c6a0f6;
+      --ctp-red: #ed8796;
+      --ctp-yellow: #eed49f;
+      --border: rgba(202, 211, 245, 0.12);
+      --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "Fragment Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(138, 173, 244, 0.08), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(198, 160, 246, 0.07), transparent 50%),
+        var(--ctp-base);
+      color: var(--ctp-text);
+      line-height: 1.6;
+    }
+    .site-main > main {
+      min-width: 0;
+      max-width: 52rem;
+    }
+    .hero {
+      background: linear-gradient(135deg, rgba(36, 39, 58, 0.95), rgba(30, 32, 48, 0.98));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 2rem 2rem 1.75rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.25);
+    }
+    .hero .eyebrow {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ctp-mauve);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.75rem, 4vw, 2.35rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .lead {
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--ctp-subtext1);
+      max-width: 58ch;
+    }
+    .lead strong { color: var(--ctp-text); }
+    .card {
+      background: var(--ctp-mantle);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.35rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .card h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card h2 .num {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--ctp-base);
+      background: var(--ctp-teal);
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .plan-steps {
+      margin: 0;
+      padding-left: 1.2rem;
+      color: var(--ctp-subtext1);
+    }
+    .plan-steps li { margin-bottom: 0.65rem; }
+    .plan-steps strong { color: var(--ctp-text); }
+    .links-grid {
+      display: grid;
+      gap: 0.65rem;
+    }
+    .links-grid a {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--ctp-crust);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--ctp-text);
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .links-grid a:hover {
+      border-color: rgba(139, 213, 202, 0.35);
+      background: rgba(36, 39, 58, 0.65);
+    }
+    .links-grid a .title { font-weight: 600; color: var(--ctp-teal); }
+    .links-grid a .meta {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--ctp-subtext0);
+      white-space: nowrap;
+    }
+    .callout {
+      border-left: 3px solid var(--ctp-peach);
+      padding: 0.65rem 0 0.65rem 1rem;
+      margin-top: 1rem;
+      color: var(--ctp-subtext1);
+      font-size: 0.95rem;
+    }
+    .callout strong { color: var(--ctp-peach); }
+    footer {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: var(--ctp-subtext0);
+      font-family: var(--font-mono);
+    }
+  </style>
+  <link rel="stylesheet" href="site-nav.css" />
+</head>
+<body>
+  <div class="learn-shell">
+    <aside class="site-nav" aria-label="Learn Happy — all pages">
+      <p class="site-nav__title">All pages</p>
+      <nav>
+        <ul class="site-nav__list">
+          <li><a href="index.html" class="site-nav__link is-current" aria-current="page">Hub</a></li>
+          <li><a href="01-start-here.html" class="site-nav__link">01 · Start here</a></li>
+          <li><a href="02-how-it-works.html" class="site-nav__link">02 · How it works</a></li>
+          <li><a href="03-components.html" class="site-nav__link">03 · Components</a></li>
+          <li><a href="04-technologies.html" class="site-nav__link">04 · Technologies</a></li>
+          <li><a href="05-glossary.html" class="site-nav__link">05 · Glossary</a></li>
+          <li><a href="06-run-and-develop.html" class="site-nav__link">06 · Run &amp; develop</a></li>
+          <li><a href="07-testing.html" class="site-nav__link">07 · Testing</a></li>
+          <li><a href="08-deploy.html" class="site-nav__link">08 · Deploy</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <div class="site-main">
+    <main>
+      <header class="hero">
+        <span class="eyebrow">Coach visual explainer · Local only</span>
+        <h1>Learn the Happy codebase</h1>
+        <p class="lead">
+          <strong>Happy</strong> is an open-source mobile and web client for Claude Code and Codex, with a CLI wrapper and an encrypted sync server.
+          These pages are a beginner-friendly tour of the repo: how it fits together, what each package does, and how to run and test it locally.
+        </p>
+      </header>
+
+      <section class="card" id="plan">
+        <h2><span class="num">1</span> Your learning plan</h2>
+        <p style="margin: 0 0 1rem; color: var(--ctp-subtext1);">
+          Follow this order the first time through. <strong>Each step is one short HTML file</strong> so you can pause between them.
+        </p>
+        <ol class="plan-steps">
+          <li><strong>Start here</strong> — Big picture and mental model (5–10 min).</li>
+          <li><strong>How it works</strong> — CLI, daemon, server, app, and encryption boundaries.</li>
+          <li><strong>Components</strong> — Monorepo packages and what owns what.</li>
+          <li><strong>Technologies</strong> — Languages, frameworks, and why they appear.</li>
+          <li><strong>Glossary</strong> — Terms you will see in docs and code.</li>
+          <li><strong>Run &amp; develop</strong> — Install, workspaces, and day-to-day commands.</li>
+          <li><strong>Testing</strong> — Where tests live and common commands.</li>
+          <li><strong>Deploy</strong> — Server Docker, app releases, and where public docs live.</li>
+        </ol>
+        <div class="callout">
+          <strong>Coach tip:</strong> If a word confuses you, jump to the glossary page, then come back. You are not expected to memorize anything on the first pass.
+        </div>
+      </section>
+
+      <section class="card" id="topics">
+        <h2><span class="num">2</span> Topic files (open in your browser)</h2>
+        <p style="margin: 0 0 1rem; color: var(--ctp-subtext1);">
+          All files are self-contained HTML under <code style="font-family: var(--font-mono); font-size: 0.85em; color: var(--ctp-teal);">learn/coach-visual-explainer/</code>.
+        </p>
+        <div class="links-grid">
+          <a href="01-start-here.html"><span class="title">01 — Start here (big picture)</span><span class="meta">mental model</span></a>
+          <a href="02-how-it-works.html"><span class="title">02 — How it works</span><span class="meta">flow &amp; security</span></a>
+          <a href="03-components.html"><span class="title">03 — Components breakdown</span><span class="meta">packages</span></a>
+          <a href="04-technologies.html"><span class="title">04 — Technologies</span><span class="meta">stack</span></a>
+          <a href="05-glossary.html"><span class="title">05 — Glossary</span><span class="meta">jargon</span></a>
+          <a href="06-run-and-develop.html"><span class="title">06 — Run &amp; develop</span><span class="meta">setup</span></a>
+          <a href="07-testing.html"><span class="title">07 — Testing</span><span class="meta">vitest &amp; more</span></a>
+          <a href="08-deploy.html"><span class="title">08 — Deploy</span><span class="meta">server &amp; app</span></a>
+        </div>
+      </section>
+
+      <section class="card" id="how-to-use">
+        <h2><span class="num">3</span> How to use this folder</h2>
+        <ul class="plan-steps">
+          <li>Open <strong>this file</strong> (<code style="font-family: var(--font-mono); font-size:0.85em;">index.html</code>) in Chrome, Firefox, or Edge — double-click in your file manager or drag into the browser.</li>
+          <li>Use the <strong>left “All pages” sidebar</strong> to jump between topics.</li>
+          <li>Cross-check anything critical against the real repo: <code style="font-family: var(--font-mono); font-size:0.85em;">docs/</code>, <code style="font-family: var(--font-mono); font-size:0.85em;">README.md</code>, and <code style="font-family: var(--font-mono); font-size:0.85em;">docs/CONTRIBUTING.md</code>.</li>
+        </ul>
+      </section>
+
+      <footer>
+        Theme: Catppuccin Macchiato · Generated for local learning — not a substitute for upstream docs.
+      </footer>
+    </main>
+    </div>
+  </div>
+</body>
+</html>

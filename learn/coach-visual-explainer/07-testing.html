@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>07 — Testing · Learn Happy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Fragment+Mono:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ctp-base: #24273a; --ctp-mantle: #1e2030; --ctp-crust: #181926;
+      --ctp-text: #cad3f5; --ctp-subtext0: #a5adcb; --ctp-subtext1: #b8c0e0;
+      --ctp-teal: #8bd5ca; --ctp-mauve: #c6a0f6; --ctp-red: #ed8796;
+      --border: rgba(202, 211, 245, 0.12);
+      --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "Fragment Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font-sans); background: var(--ctp-base); color: var(--ctp-text); line-height: 1.6; }
+    .wrap { max-width: 820px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    .back { font-family: var(--font-mono); font-size: 0.8rem; margin-bottom: 1rem; }
+    .back a { color: var(--ctp-teal); text-decoration: none; }
+    h1 { margin: 0.35rem 0 0.75rem; font-size: clamp(1.45rem, 3vw, 1.9rem); }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ctp-mauve); }
+    p { color: var(--ctp-subtext1); margin: 0 0 1rem; max-width: 62ch; }
+    p strong { color: var(--ctp-text); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; background: var(--ctp-mantle); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1rem; }
+    th, td { padding: 0.55rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: var(--ctp-crust); color: var(--ctp-subtext0); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    td { color: var(--ctp-subtext1); font-family: var(--font-mono); font-size: 0.8rem; }
+    pre {
+      background: var(--ctp-crust); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1rem 1.1rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.78rem; color: var(--ctp-subtext1); line-height: 1.45;
+    }
+    .callout { border-left: 3px solid var(--ctp-red); padding: 0.65rem 0 0.65rem 1rem; color: var(--ctp-subtext1); font-size: 0.9rem; margin-top: 0.5rem; }
+    .callout strong { color: var(--ctp-red); }
+  </style>
+  <link rel="stylesheet" href="site-nav.css" />
+</head>
+<body>
+  <div class="learn-shell">
+    <aside class="site-nav" aria-label="Learn Happy — all pages">
+      <p class="site-nav__title">All pages</p>
+      <nav>
+        <ul class="site-nav__list">
+          <li><a href="index.html" class="site-nav__link">Hub</a></li>
+          <li><a href="01-start-here.html" class="site-nav__link">01 · Start here</a></li>
+          <li><a href="02-how-it-works.html" class="site-nav__link">02 · How it works</a></li>
+          <li><a href="03-components.html" class="site-nav__link">03 · Components</a></li>
+          <li><a href="04-technologies.html" class="site-nav__link">04 · Technologies</a></li>
+          <li><a href="05-glossary.html" class="site-nav__link">05 · Glossary</a></li>
+          <li><a href="06-run-and-develop.html" class="site-nav__link">06 · Run &amp; develop</a></li>
+          <li><a href="07-testing.html" class="site-nav__link is-current" aria-current="page">07 · Testing</a></li>
+          <li><a href="08-deploy.html" class="site-nav__link">08 · Deploy</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <div class="site-main">
+  <div class="wrap">
+    <div class="eyebrow">Verify changes</div>
+    <h1>How to test</h1>
+    <p><strong>Automated tests</strong> catch regressions; Happy’s contributing guide also asks for <strong>visual proof</strong> (screenshots or recordings) for many PRs — read <code style="font-family:var(--font-mono);color:var(--ctp-teal);">docs/CONTRIBUTING.md</code> before you open a PR.</p>
+
+    <table>
+      <thead><tr><th>Package</th><th>Typical command</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="font-family:var(--font-sans); color:var(--ctp-subtext1);">happy-cli</td>
+          <td>yarn workspace happy test</td>
+          <td style="font-family:var(--font-sans); font-size:0.85rem;">After <code>yarn workspace happy build</code> when you need a full build.</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--font-sans); color:var(--ctp-subtext1);">happy-server</td>
+          <td>yarn workspace happy-server test</td>
+          <td style="font-family:var(--font-sans); font-size:0.85rem;">Uses Vitest (<code>vitest run</code> in package scripts).</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--font-sans); color:var(--ctp-subtext1);">happy-app</td>
+          <td>yarn workspace happy-app test</td>
+          <td style="font-family:var(--font-sans); font-size:0.85rem;">Vitest per <code>happy-app/package.json</code>; also run <code>typecheck</code> often.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Typechecking</strong> (static analysis, not tests) for the app:</p>
+    <pre>yarn workspace happy-app typecheck</pre>
+
+    <div class="callout"><strong>Contributor expectation:</strong> Passing unit tests alone may not be enough — maintainers often want evidence that the app or CLI actually works end-to-end for user-visible changes.</div>
+  </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>05 — Glossary · Learn Happy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Fragment+Mono:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ctp-base: #24273a; --ctp-mantle: #1e2030; --ctp-crust: #181926;
+      --ctp-text: #cad3f5; --ctp-subtext0: #a5adcb; --ctp-subtext1: #b8c0e0;
+      --ctp-teal: #8bd5ca; --ctp-mauve: #c6a0f6; --ctp-peach: #f5a97f;
+      --border: rgba(202, 211, 245, 0.12);
+      --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "Fragment Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font-sans); background: var(--ctp-base); color: var(--ctp-text); line-height: 1.55; }
+    .wrap-outer { max-width: 960px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    .layout { display: grid; grid-template-columns: minmax(200px, 240px) 1fr; gap: 1.5rem; }
+    @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } .layout > nav { position: static !important; } }
+    .layout > nav {
+      position: sticky; top: 1rem; align-self: start;
+      background: var(--ctp-mantle); border: 1px solid var(--border); border-radius: 12px; padding: 0.85rem 1rem; font-size: 0.82rem;
+    }
+    .layout > nav h2 { margin: 0 0 0.5rem; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ctp-subtext0); }
+    .layout > nav ul { margin: 0; padding-left: 1.1rem; color: var(--ctp-subtext1); }
+    .layout > nav a { color: var(--ctp-teal); text-decoration: none; }
+    .layout > nav a:hover { text-decoration: underline; }
+    .back { font-family: var(--font-mono); font-size: 0.8rem; margin-bottom: 1rem; }
+    .back a { color: var(--ctp-teal); text-decoration: none; }
+    main { min-width: 0; }
+    h1 { margin: 0 0 0.5rem; font-size: clamp(1.45rem, 3vw, 1.85rem); }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ctp-mauve); }
+    .lead { color: var(--ctp-subtext1); margin: 0 0 1.25rem; }
+    .lead strong { color: var(--ctp-text); }
+    section { margin-bottom: 1.75rem; scroll-margin-top: 1rem; }
+    section h2 { font-size: 1rem; margin: 0 0 0.75rem; padding-bottom: 0.35rem; border-bottom: 1px solid var(--border); color: var(--ctp-text); }
+    .term {
+      display: grid; grid-template-columns: 1fr; gap: 0.15rem;
+      padding: 0.65rem 0; border-bottom: 1px solid rgba(202, 211, 245, 0.07);
+    }
+    .term:last-child { border-bottom: none; }
+    .term dt { font-family: var(--font-mono); font-size: 0.88rem; color: var(--ctp-teal); margin: 0; }
+    .term dd { margin: 0; color: var(--ctp-subtext1); font-size: 0.9rem; }
+    .term dd strong { color: var(--ctp-text); }
+  </style>
+  <link rel="stylesheet" href="site-nav.css" />
+</head>
+<body>
+  <div class="learn-shell">
+    <aside class="site-nav" aria-label="Learn Happy — all pages">
+      <p class="site-nav__title">All pages</p>
+      <nav>
+        <ul class="site-nav__list">
+          <li><a href="index.html" class="site-nav__link">Hub</a></li>
+          <li><a href="01-start-here.html" class="site-nav__link">01 · Start here</a></li>
+          <li><a href="02-how-it-works.html" class="site-nav__link">02 · How it works</a></li>
+          <li><a href="03-components.html" class="site-nav__link">03 · Components</a></li>
+          <li><a href="04-technologies.html" class="site-nav__link">04 · Technologies</a></li>
+          <li><a href="05-glossary.html" class="site-nav__link is-current" aria-current="page">05 · Glossary</a></li>
+          <li><a href="06-run-and-develop.html" class="site-nav__link">06 · Run &amp; develop</a></li>
+          <li><a href="07-testing.html" class="site-nav__link">07 · Testing</a></li>
+          <li><a href="08-deploy.html" class="site-nav__link">08 · Deploy</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <div class="site-main">
+  <div class="wrap-outer">
+    <div class="layout">
+    <nav aria-label="Glossary sections">
+      <h2>Jump</h2>
+      <ul>
+        <li><a href="#core">Core product</a></li>
+        <li><a href="#repo">Repo &amp; build</a></li>
+        <li><a href="#security">Security &amp; sync</a></li>
+        <li><a href="#runtime">Runtime &amp; ops</a></li>
+      </ul>
+    </nav>
+    <main>
+      <div class="eyebrow">Definitions first</div>
+      <h1>Glossary</h1>
+      <p class="lead"><strong>Use this page as a dictionary</strong> while you read code and docs. If we use a term in other learn pages, it should appear here.</p>
+
+      <section id="core">
+        <h2>Core product</h2>
+        <dl>
+          <div class="term"><dt>Happy</dt><dd>Open-source <strong>client + CLI + sync server</strong> for using AI coding agents (e.g. Claude Code, Codex) from multiple devices with encrypted sync.</dd></div>
+          <div class="term"><dt>Claude Code / Codex</dt><dd>Third-party <strong>agent CLIs</strong> that Happy wraps — Happy is not a replacement for them.</dd></div>
+          <div class="term"><dt>Happy CLI (<code>happy</code>)</dt><dd>The published command-line tool in <code>packages/happy-cli</code>; starts sessions, manages daemon/auth, wraps agents.</dd></div>
+          <div class="term"><dt>Daemon</dt><dd>Background process on your machine so <strong>remote clients</strong> can interact with sessions without a foreground terminal always open.</dd></div>
+        </dl>
+      </section>
+
+      <section id="repo">
+        <h2>Repository &amp; build</h2>
+        <dl>
+          <div class="term"><dt>Monorepo</dt><dd>Single repository containing multiple publishable or private packages under <code>packages/</code>.</dd></div>
+          <div class="term"><dt>Yarn workspace</dt><dd>Yarn feature linking workspaces so <code>yarn install</code> at the root installs all package dependencies.</dd></div>
+          <div class="term"><dt>Workspace package</dt><dd>One of <code>happy-app</code>, <code>happy-cli</code> (named <code>happy</code>), <code>happy-server</code>, etc.</dd></div>
+          <div class="term"><dt>EAS (Expo Application Services)</dt><dd>Cloud builds and OTA updates for Expo apps — see release scripts in <code>happy-app/package.json</code>.</dd></div>
+          <div class="term"><dt>Tauri</dt><dd>Framework used for optional <strong>macOS desktop</strong> builds of the app.</dd></div>
+        </dl>
+      </section>
+
+      <section id="security">
+        <h2>Security &amp; sync</h2>
+        <dl>
+          <div class="term"><dt>E2EE (end-to-end encryption)</dt><dd>Encryption on the client so the <strong>server relays ciphertext</strong> without reading content — see <code>docs/encryption.md</code>.</dd></div>
+          <div class="term"><dt>Wire protocol</dt><dd>Message formats and rules for WebSocket communication — <code>docs/protocol.md</code>.</dd></div>
+          <div class="term"><dt>happy-wire</dt><dd>Shared <strong>types/schemas</strong> for protocol payloads between clients and server.</dd></div>
+          <div class="term"><dt>Session protocol</dt><dd>Encrypted chat/event protocol unifying client behavior — see <code>docs/session-protocol.md</code>.</dd></div>
+        </dl>
+      </section>
+
+      <section id="runtime">
+        <h2>Runtime &amp; operations</h2>
+        <dl>
+          <div class="term"><dt>PGlite</dt><dd>Embedded Postgres used in <strong>standalone</strong> server deployments without an external database.</dd></div>
+          <div class="term"><dt>Prisma</dt><dd>ORM and migration tool used by the server for schema management.</dd></div>
+          <div class="term"><dt>Standalone mode</dt><dd>Server entry that bundles storage suitable for single-container/self-host setups — <code>standalone:dev</code> for local dev.</dd></div>
+          <div class="term"><dt>Vitest</dt><dd>Test runner used across packages for unit/integration tests in TypeScript.</dd></div>
+        </dl>
+      </section>
+    </main>
+    </div>
+  </div>
+    </div>
+  </div>
+</body>
+</html>
