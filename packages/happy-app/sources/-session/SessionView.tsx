@@ -426,6 +426,7 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
                 contextSize: session.latestUsage.contextSize
             } : undefined}
             alwaysShowContextSize={alwaysShowContextSize}
+            onRefresh={() => sync.onSessionVisible(sessionId)}
         />
     );
 

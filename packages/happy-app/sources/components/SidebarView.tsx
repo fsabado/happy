@@ -13,6 +13,7 @@ import { MainView } from './MainView';
 import { Image } from 'expo-image';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { t } from '@/text';
+import { sync } from '@/sync/sync';
 import { useInboxHasContent } from '@/hooks/useInboxHasContent';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -269,6 +270,12 @@ export const SidebarView = React.memo(() => {
                                 style={[{ width: 32, height: 32 }]}
                                 tintColor={theme.colors.header.tint}
                             />
+                        </Pressable>
+                        <Pressable
+                            onPress={() => sync.invalidateHomeData()}
+                            hitSlop={15}
+                        >
+                            <Ionicons name="refresh-outline" size={24} color={theme.colors.header.tint} />
                         </Pressable>
                         <Pressable
                             onPress={handleNewSession}
