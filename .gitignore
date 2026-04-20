@@ -69,3 +69,5 @@ docs/competition/opencode/traces/
 # scratch tooling
 .cdp-scripts/
 happy-workspaces/
+# Git worktrees
+.worktrees/
