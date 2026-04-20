@@ -1,0 +1,82 @@
+site_name: Learn Happy
+site_description: Beginner-friendly tour of the Happy codebase (MkDocs)
+site_author: Happy contributors
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.expand
+    - navigation.sections
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  generator: false
+
+nav:
+  - Hub: index.md
+  - "01 · Start here": start-here.md
+  - "02 · How it works": how-it-works.md
+  - "03 · Components": components.md
+  - "04 · Technologies": technologies.md
+  - "05 · Glossary": glossary.md
+  - "06 · Run & develop": run-and-develop.md
+  - "07 · Testing": testing.md
+  - "08 · Deploy": deploy.md
+  - Happy Server:
+      - Overview: happy-server/index.md
+      - "1 · Runtime & startup": happy-server/01-runtime-and-startup.md
+      - "2 · HTTP API & auth": happy-server/02-http-api-and-auth.md
+      - "3 · WebSocket & events": happy-server/03-websocket-and-events.md
+      - "4 · Database & storage": happy-server/04-database-and-storage.md
+      - "5 · Security & confidentiality": happy-server/05-security-and-confidentiality.md
+      - "6 · Observability & deployment": happy-server/06-observability-deployment.md

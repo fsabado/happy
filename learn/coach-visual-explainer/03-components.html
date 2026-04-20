@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>03 — Components · Learn Happy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Fragment+Mono:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ctp-base: #24273a; --ctp-mantle: #1e2030; --ctp-crust: #181926;
+      --ctp-text: #cad3f5; --ctp-subtext0: #a5adcb; --ctp-subtext1: #b8c0e0;
+      --ctp-teal: #8bd5ca; --ctp-mauve: #c6a0f6; --ctp-peach: #f5a97f;
+      --border: rgba(202, 211, 245, 0.12);
+      --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "Fragment Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font-sans); background: var(--ctp-base); color: var(--ctp-text); line-height: 1.6; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    .back { font-family: var(--font-mono); font-size: 0.8rem; margin-bottom: 1.1rem; }
+    .back a { color: var(--ctp-teal); text-decoration: none; }
+    .hero { margin-bottom: 1.25rem; }
+    h1 { margin: 0.25rem 0 0.5rem; font-size: clamp(1.45rem, 3vw, 1.95rem); }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ctp-mauve); }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    .card {
+      background: var(--ctp-mantle); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.1rem 1.15rem; display: flex; flex-direction: column; gap: 0.45rem;
+    }
+    .card .pkg { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ctp-teal); }
+    .card h2 { margin: 0; font-size: 1.05rem; color: var(--ctp-text); }
+    .card p { margin: 0; font-size: 0.9rem; color: var(--ctp-subtext1); flex: 1; }
+    .card p strong { color: var(--ctp-text); }
+    .card .path { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ctp-subtext0); word-break: break-all; }
+    .note { margin-top: 1.25rem; padding: 1rem 1.15rem; background: rgba(245, 169, 127, 0.06); border: 1px solid rgba(245, 169, 127, 0.25); border-radius: 12px; color: var(--ctp-subtext1); font-size: 0.92rem; }
+    .note strong { color: var(--ctp-peach); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; margin-top: 1rem; background: var(--ctp-mantle); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    th, td { padding: 0.55rem 0.7rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: var(--ctp-crust); color: var(--ctp-subtext0); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    td { color: var(--ctp-subtext1); }
+    td code { font-family: var(--font-mono); font-size: 0.82em; color: var(--ctp-peach); }
+  </style>
+  <link rel="stylesheet" href="site-nav.css" />
+</head>
+<body>
+  <div class="learn-shell">
+    <aside class="site-nav" aria-label="Learn Happy — all pages">
+      <p class="site-nav__title">All pages</p>
+      <nav>
+        <ul class="site-nav__list">
+          <li><a href="index.html" class="site-nav__link">Hub</a></li>
+          <li><a href="01-start-here.html" class="site-nav__link">01 · Start here</a></li>
+          <li><a href="02-how-it-works.html" class="site-nav__link">02 · How it works</a></li>
+          <li><a href="03-components.html" class="site-nav__link is-current" aria-current="page">03 · Components</a></li>
+          <li><a href="04-technologies.html" class="site-nav__link">04 · Technologies</a></li>
+          <li><a href="05-glossary.html" class="site-nav__link">05 · Glossary</a></li>
+          <li><a href="06-run-and-develop.html" class="site-nav__link">06 · Run &amp; develop</a></li>
+          <li><a href="07-testing.html" class="site-nav__link">07 · Testing</a></li>
+          <li><a href="08-deploy.html" class="site-nav__link">08 · Deploy</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <div class="site-main">
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">Monorepo map</div>
+      <h1>Packages and what they own</h1>
+      <p style="margin:0; color:var(--ctp-subtext1); max-width:65ch;">The repository root is a <strong style="color:var(--ctp-text);">Yarn workspaces monorepo</strong>. Each row below is a first-class package with its own <code style="font-family:var(--font-mono);color:var(--ctp-peach);">package.json</code>.</p>
+    </header>
+
+    <div class="grid">
+      <article class="card">
+        <span class="pkg">happy-app</span>
+        <h2>Mobile + web client</h2>
+        <p><strong>Expo / React Native</strong> UI, web via Expo, optional <strong>Tauri</strong> for macOS desktop. This is what users tap and see.</p>
+        <span class="path">packages/happy-app</span>
+      </article>
+      <article class="card">
+        <span class="pkg">happy-cli</span>
+        <h2>CLI (published as <code style="font-size:0.85em;">happy</code>)</h2>
+        <p>Wraps <strong>Claude Code</strong>, <strong>Codex</strong>, and other agents; starts sessions, QR pairing, <strong>daemon</strong> integration.</p>
+        <span class="path">packages/happy-cli</span>
+      </article>
+      <article class="card">
+        <span class="pkg">happy-server</span>
+        <h2>Backend relay</h2>
+        <p><strong>HTTP + WebSocket</strong>; stores ciphertext and routes real-time updates. Can run embedded <strong>PGlite</strong> or external DB.</p>
+        <span class="path">packages/happy-server</span>
+      </article>
+      <article class="card">
+        <span class="pkg">happy-agent</span>
+        <h2>Remote agent tooling</h2>
+        <p>CLI for creating, sending, and monitoring remote sessions (see package README for commands).</p>
+        <span class="path">packages/happy-agent</span>
+      </article>
+      <article class="card">
+        <span class="pkg">happy-wire</span>
+        <h2>Shared protocol types</h2>
+        <p>Schemas and types shared between clients and server so payloads stay <strong>consistent</strong>.</p>
+        <span class="path">packages/happy-wire</span>
+      </article>
+      <article class="card">
+        <span class="pkg">happy-app-logs</span>
+        <h2>App log tooling</h2>
+        <p>Helper package for log workflows (see root script <code style="font-family:var(--font-mono);font-size:0.85em;">app-logs</code>).</p>
+        <span class="path">packages/happy-app-logs</span>
+      </article>
+    </div>
+
+    <p class="note"><strong>Also explore:</strong> <code style="font-family:var(--font-mono);">docs/</code> for protocol and architecture; <code style="font-family:var(--font-mono);">environments/</code> for local dev environment orchestration; <code style="font-family:var(--font-mono);">scripts/</code> for release and postinstall hooks.</p>
+
+    <table>
+      <caption style="caption-side:top; text-align:left; padding:0.5rem 0; color:var(--ctp-subtext0); font-size:0.8rem;">Root shortcuts (from <code>package.json</code>)</caption>
+      <thead><tr><th>Script</th><th>Points at</th></tr></thead>
+      <tbody>
+        <tr><td><code>yarn web</code></td><td><code>happy-app</code> web dev</td></tr>
+        <tr><td><code>yarn cli</code></td><td><code>workspace happy cli</code></td></tr>
+        <tr><td><code>yarn env:*</code></td><td>Environment manager under <code>environments/</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>04 — Technologies · Learn Happy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Fragment+Mono:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ctp-base: #24273a; --ctp-mantle: #1e2030; --ctp-crust: #181926;
+      --ctp-text: #cad3f5; --ctp-subtext0: #a5adcb; --ctp-subtext1: #b8c0e0;
+      --ctp-teal: #8bd5ca; --ctp-mauve: #c6a0f6; --ctp-yellow: #eed49f;
+      --border: rgba(202, 211, 245, 0.12);
+      --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "Fragment Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font-sans); background: var(--ctp-base); color: var(--ctp-text); line-height: 1.6; }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    .back { font-family: var(--font-mono); font-size: 0.8rem; margin-bottom: 1rem; }
+    .back a { color: var(--ctp-teal); text-decoration: none; }
+    h1 { margin: 0.35rem 0 0.75rem; font-size: clamp(1.45rem, 3vw, 1.9rem); }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ctp-mauve); }
+    p.intro { color: var(--ctp-subtext1); margin: 0 0 1rem; max-width: 62ch; }
+    p.intro strong { color: var(--ctp-text); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; background: var(--ctp-mantle); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 1rem; }
+    th, td { padding: 0.55rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: var(--ctp-crust); color: var(--ctp-subtext0); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; width: 22%; }
+    td { color: var(--ctp-subtext1); }
+    td code { font-family: var(--font-mono); font-size: 0.78em; color: var(--ctp-yellow); }
+    tr:last-child th, tr:last-child td { border-bottom: none; }
+    .callout { padding: 0.9rem 1rem; background: rgba(139, 213, 202, 0.06); border: 1px solid rgba(139, 213, 202, 0.2); border-radius: 12px; color: var(--ctp-subtext1); font-size: 0.92rem; }
+    .callout strong { color: var(--ctp-teal); }
+  </style>
+  <link rel="stylesheet" href="site-nav.css" />
+</head>
+<body>
+  <div class="learn-shell">
+    <aside class="site-nav" aria-label="Learn Happy — all pages">
+      <p class="site-nav__title">All pages</p>
+      <nav>
+        <ul class="site-nav__list">
+          <li><a href="index.html" class="site-nav__link">Hub</a></li>
+          <li><a href="01-start-here.html" class="site-nav__link">01 · Start here</a></li>
+          <li><a href="02-how-it-works.html" class="site-nav__link">02 · How it works</a></li>
+          <li><a href="03-components.html" class="site-nav__link">03 · Components</a></li>
+          <li><a href="04-technologies.html" class="site-nav__link is-current" aria-current="page">04 · Technologies</a></li>
+          <li><a href="05-glossary.html" class="site-nav__link">05 · Glossary</a></li>
+          <li><a href="06-run-and-develop.html" class="site-nav__link">06 · Run &amp; develop</a></li>
+          <li><a href="07-testing.html" class="site-nav__link">07 · Testing</a></li>
+          <li><a href="08-deploy.html" class="site-nav__link">08 · Deploy</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <div class="site-main">
+  <div class="wrap">
+    <div class="eyebrow">Stack snapshot</div>
+    <h1>Technologies you will bump into</h1>
+    <p class="intro">This table is a <strong>orientation map</strong>, not an exhaustive dependency list. When in doubt, open the relevant <code>package.json</code> and search the repo.</p>
+
+    <table>
+      <thead><tr><th>Area</th><th>Technologies</th><th>Why they show up</th></tr></thead>
+      <tbody>
+        <tr>
+          <th>Language</th>
+          <td><code>TypeScript</code>, <code>Node.js</code> (≥20)</td>
+          <td>Shared typed codebase across CLI, server, and packages; Node is the primary runtime for dev and server.</td>
+        </tr>
+        <tr>
+          <th>Package / repo</th>
+          <td><code>Yarn</code> workspaces v1</td>
+          <td>Monorepo installs and scripts; root <code>package.json</code> wires shortcuts like <code>yarn web</code>.</td>
+        </tr>
+        <tr>
+          <th>Client app</th>
+          <td><code>Expo</code>, <code>React Native</code>, web export</td>
+          <td>One codebase for iOS, Android, and browser; native builds via EAS in release scripts.</td>
+        </tr>
+        <tr>
+          <th>Desktop (optional)</th>
+          <td><code>Tauri</code></td>
+          <td>macOS desktop variant — see <code>happy-app</code> Tauri scripts in CONTRIBUTING.</td>
+        </tr>
+        <tr>
+          <th>Server data</th>
+          <td><code>Prisma</code>, <code>PGlite</code> / Postgres</td>
+          <td>Persistent storage and migrations; standalone mode can embed PGlite (see server README).</td>
+        </tr>
+        <tr>
+          <th>Realtime</th>
+          <td><code>WebSocket</code> wire protocol</td>
+          <td>Documented under <code>docs/protocol.md</code>; clients and server speak the same shapes via <code>happy-wire</code>.</td>
+        </tr>
+        <tr>
+          <th>Crypto</th>
+          <td>Libraries via app/cli (e.g. libsodium family on native)</td>
+          <td>E2EE boundaries are described in <code>docs/encryption.md</code> — read before changing crypto paths.</td>
+        </tr>
+        <tr>
+          <th>Testing</th>
+          <td><code>Vitest</code> (server, app, CLI areas)</td>
+          <td>Fast TS-native tests; run package-specific <code>test</code> scripts.</td>
+        </tr>
+        <tr>
+          <th>Infra (optional)</th>
+          <td><code>Docker</code>, <code>Redis</code>, <code>S3</code>/MinIO</td>
+          <td>Self-hosted server can swap embedded pieces for external Postgres, Redis, object storage (server README + env tables).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout"><strong>In short:</strong> Expect TypeScript everywhere, Expo for the UI, Prisma/PGlite on the server, and Vitest when you run tests.</div>
+  </div>
+    </div>
+  </div>
+</body>
+</html>

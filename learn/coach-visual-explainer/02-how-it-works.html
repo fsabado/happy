@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>02 — How it works · Learn Happy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Fragment+Mono:ital@0;1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --ctp-base: #24273a; --ctp-mantle: #1e2030; --ctp-crust: #181926;
+      --ctp-text: #cad3f5; --ctp-subtext0: #a5adcb; --ctp-subtext1: #b8c0e0;
+      --ctp-teal: #8bd5ca; --ctp-mauve: #c6a0f6; --ctp-peach: #f5a97f; --ctp-blue: #8aadf4;
+      --border: rgba(202, 211, 245, 0.12);
+      --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+      --font-mono: "Fragment Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font-sans);
+      background: radial-gradient(700px 380px at 80% -5%, rgba(138, 173, 244, 0.07), transparent), var(--ctp-base);
+      color: var(--ctp-text); line-height: 1.65; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    .back { font-family: var(--font-mono); font-size: 0.8rem; margin-bottom: 1.25rem; }
+    .back a { color: var(--ctp-teal); text-decoration: none; }
+    .hero { background: var(--ctp-mantle); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem 1.4rem; margin-bottom: 1rem; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ctp-mauve); }
+    h1 { margin: 0.35rem 0 0.5rem; font-size: clamp(1.45rem, 3vw, 1.9rem); }
+    .lead { margin: 0; color: var(--ctp-subtext1); }
+    .lead strong { color: var(--ctp-text); }
+    .section { background: var(--ctp-mantle); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem 1.35rem; margin-bottom: 1rem; }
+    .section h2 { margin: 0 0 0.6rem; font-size: 1.02rem; }
+    p { margin: 0 0 0.7rem; color: var(--ctp-subtext1); font-size: 0.95rem; }
+    p strong { color: var(--ctp-text); }
+    .mermaid-wrap { overflow-x: auto; margin: 0.5rem 0; padding: 0.75rem; background: var(--ctp-crust); border-radius: 12px; border: 1px solid var(--border); display: flex; justify-content: center; }
+    .callout { border-left: 3px solid var(--ctp-peach); padding-left: 1rem; margin: 0.75rem 0 0; color: var(--ctp-subtext1); font-size: 0.92rem; }
+    .callout strong { color: var(--ctp-peach); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; margin-top: 0.5rem; }
+    th, td { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--border); color: var(--ctp-subtext1); }
+    th { color: var(--ctp-subtext0); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .faq details { margin-bottom: 0.55rem; border: 1px solid var(--border); border-radius: 10px; padding: 0.55rem 0.8rem; background: var(--ctp-crust); }
+    .faq summary { cursor: pointer; font-weight: 600; color: var(--ctp-text); font-size: 0.92rem; }
+    .faq p { margin: 0.45rem 0 0; }
+  </style>
+  <link rel="stylesheet" href="site-nav.css" />
+</head>
+<body>
+  <div class="learn-shell">
+    <aside class="site-nav" aria-label="Learn Happy — all pages">
+      <p class="site-nav__title">All pages</p>
+      <nav>
+        <ul class="site-nav__list">
+          <li><a href="index.html" class="site-nav__link">Hub</a></li>
+          <li><a href="01-start-here.html" class="site-nav__link">01 · Start here</a></li>
+          <li><a href="02-how-it-works.html" class="site-nav__link is-current" aria-current="page">02 · How it works</a></li>
+          <li><a href="03-components.html" class="site-nav__link">03 · Components</a></li>
+          <li><a href="04-technologies.html" class="site-nav__link">04 · Technologies</a></li>
+          <li><a href="05-glossary.html" class="site-nav__link">05 · Glossary</a></li>
+          <li><a href="06-run-and-develop.html" class="site-nav__link">06 · Run &amp; develop</a></li>
+          <li><a href="07-testing.html" class="site-nav__link">07 · Testing</a></li>
+          <li><a href="08-deploy.html" class="site-nav__link">08 · Deploy</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <div class="site-main">
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">Data flow &amp; trust boundaries</div>
+      <h1>How the pieces talk to each other</h1>
+      <p class="lead">Don’t worry — you don’t need to know every protocol detail on day one. <strong>Start with who talks to whom</strong> and where encryption happens.</p>
+    </header>
+
+    <section class="section">
+      <h2>High-level architecture</h2>
+      <p>The CLI and app are <strong>clients</strong>. The server is a <strong>relay</strong> for encrypted updates. Your development machine often runs a <strong>daemon</strong> so sessions stay controllable while you switch devices.</p>
+      <div class="mermaid-wrap">
+        <div class="mermaid">
+flowchart TD
+  subgraph devices["Your devices"]
+    T["Terminal · happy CLI"]
+    P["Phone / tablet · Happy app"]
+    W["Browser · Happy web"]
+  end
+  S["Happy Server · relay"]
+  T <-->|"E2EE payloads"| S
+  P <-->|"E2EE payloads"| S
+  W <-->|"E2EE payloads"| S
+  T --- D["Local daemon"]
+        </div>
+      </div>
+      <div class="callout"><strong>In short:</strong> Plaintext chat and code context stay on devices; the server coordinates opaque ciphertext.</div>
+    </section>
+
+    <section class="section">
+      <h2>Typical session idea (not a literal sequence diagram)</h2>
+      <table>
+        <thead><tr><th>Step</th><th>What happens</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>You run <strong>happy</strong> (or <strong>happy codex</strong>) on the computer. The wrapper starts or attaches to an agent session.</td></tr>
+          <tr><td>2</td><td>You pair or sign in on mobile/web so another client can join the same <strong>encrypted</strong> conversation stream.</td></tr>
+          <tr><td>3</td><td>When you step away, you can still <strong>monitor or steer</strong> from the app; the daemon on the desktop keeps the bridge alive.</td></tr>
+          <tr><td>4</td><td>When you are back at the keyboard, you can resume local control — product copy describes switching with a keypress.</td></tr>
+        </tbody>
+      </table>
+      <p>For wire formats and sequencing, read <code style="font-family:var(--font-mono);color:var(--ctp-peach);">docs/protocol.md</code> and related files when you are ready.</p>
+    </section>
+
+    <section class="section faq">
+      <h2 style="margin-bottom:0.65rem;">FAQ</h2>
+      <details><summary>Does the server see my source code?</summary><p>It should not see plaintext session content — that is the E2EE design. Always verify against the current <code>docs/encryption.md</code> and server code for the exact boundaries.</p></details>
+      <details><summary>Why WebSockets?</summary><p>Real-time sync across devices needs persistent, low-latency connections — a natural fit for WS, described in <code>docs/protocol.md</code>.</p></details>
+      <details><summary>What is “remote mode”?</summary><p>Marketing/docs describe switching between local and remote control of the same session; implementation details live under <code>docs/session-protocol*.md</code>.</p></details>
+    </section>
+  </div>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: "base", securityLevel: "loose",
+      themeVariables: { fontFamily: "Fragment Mono, ui-monospace, monospace" } });
+  </script>
+    </div>
+  </div>
+</body>
+</html>
