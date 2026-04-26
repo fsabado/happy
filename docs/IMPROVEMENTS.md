@@ -1,110 +1,110 @@
 # happy-app Improvement Opportunities
 
-Identified from codebase analysis of `packages/happy-app/sources/`. Ordered by impact.
+Identified from codebase analysis of `packages/happy-app/sources/`. Each item below has been verified against the current code.
 
 ---
 
 ## Performance
 
-### 1. Session list rebuilt too often
-**File:** `sync/storage.ts:224–317` (`buildSessionListViewData`)
+### 1. Session list rebuilt on unrelated mutations
 
-Called on every state mutation — including unrelated changes like draft updates. Performs O(n·m) date-grouping work every time.
+**File:** `sync/storage.ts:224–317` (`buildSessionListViewData`), callers at lines 525, 898, 999, 1017, 1086
 
-**Fix:** Memoize with precise dependencies; only rebuild when session structure actually changes (not on draft/machine-only mutations).
+`buildSessionListViewData` walks all sessions and re-groups them by date (O(n) with Date allocations per session). It's called from paths that don't change list structure — notably `updateSessionDraft` (line 898), which only mutates a single session's draft text.
+
+Because the function returns a brand-new array every call, the consumer selector (`useSessionListViewData`, line 1292) has to wrap itself in `useDeepEqual` to prevent downstream re-renders — a workaround for the root cause.
+
+**Fix:**
+
+- Skip the rebuild when only draft content changed (drafts don't affect grouping or sort order).
+- Once rebuilds are gated to real structural changes, the `useDeepEqual` wrapper on the selector can be dropped in favor of reference equality.
 
 ---
 
 ### 2. Feed item O(n²) processing
+
 **File:** `sync/storage.ts:1176–1202` (`applyFeedItems`)
 
-For each incoming item, runs `findIndex()` through the entire existing array + `splice()` (which copies the array). On large batches this is 10–50× slower than necessary.
+For each incoming item, runs `findIndex()` over the existing array and `splice()` (which shifts all trailing elements). On batches this is O(n·m).
 
-**Fix:** Build a `Map<repeatKey, index>` upfront, then use `filter` + spread instead of splice-per-item.
+**Fix:** Precompute the set of incoming `repeatKey`s, filter the existing array once, then append + sort.
 
 ```ts
-const repeatKeys = new Set(items.map(i => i.repeatKey).filter(Boolean));
-const filtered = state.feedItems.filter(i => !repeatKeys.has(i.repeatKey));
+const incomingRepeatKeys = new Set(
+    items.map(i => i.repeatKey).filter((k): k is string => !!k)
+);
+const filtered = state.feedItems.filter(i =>
+    !i.repeatKey || !incomingRepeatKeys.has(i.repeatKey)
+);
 const updated = [...filtered, ...items].sort((a, b) => b.counter - a.counter);
-```
-
----
-
-### 3. Deep-equal overuse in session list selector
-**File:** `sync/storage.ts:1292` (`useSessionListViewData`)
-
-Uses full recursive deep-equal on arrays of 100+ items on every state update.
-
-**Fix:** Replace with a cheaper structural check (length + id comparison):
-
-```ts
-export function useSessionListViewData() {
-    return storage(
-        (state) => state.sessionListViewData,
-        (a, b) => a?.length === b?.length && a?.every((v, i) => v.id === b?.[i].id)
-    );
-}
 ```
 
 ---
 
 ## Reliability / Bug Risk
 
-### 4. Mutable reducer state (Zustand immutability violation)
+### 3. Mutable `reducerState` (fragility, not a present bug)
+
 **File:** `sync/storage.ts:599, 649`
 
-`reducerState` is mutated in-place before being stored. Zustand requires immutable updates — mutations to nested `Map`/`Set` fields won't trigger subscribers, causing missed re-renders on message state changes.
+The reducer mutates `reducerState` in place (the inline comment at line 649 acknowledges this: *"Explicitly include the mutated reducer state"*). Currently this is safe because the outer `sessionMessages[sessionId]` object is recreated via spread on every message update, so Zustand subscribers see a new root reference and re-run.
 
-**Fix:** Shallow-copy `reducerState` (and its `Map`/`Set` fields) before passing to reducer.
+The fragility: if any future selector reads `reducerState` via identity comparison (e.g. `useShallow`, `fast-deep-equal` short-circuit on same reference), it will silently miss updates. The `Map`/`Set` fields inside (`toolIdToMessageId`, `sidechains`) are particularly easy to misuse.
 
----
-
-### 5. Artifact encryption key recovery gap
-**File:** `sync/sync.ts:1046–1059` (`updateArtifact`)
-
-If a key is evicted from `artifactDataKeys` (memory pressure / GC), the recovery path fetches the artifact but doesn't handle fetch failure — the entire update silently fails.
-
-**Fix:** Extract a `getOrFetchArtifactKey(artifactId)` helper with proper error handling and retry.
-
----
-
-### 6. Message queue race condition
-**File:** `sync/sync.ts:291–338` (`enqueueMessages`)
-
-Two rapid calls can interleave between the `get()` and the async lock acquisition, potentially reordering messages.
-
-**Fix:** Make the queue append atomic before scheduling processing (no async gap between read and write).
+**Fix:** Treat `reducerState` as immutable. Shallow-copy it (and its `Map`/`Set` fields) before calling the reducer, and have the reducer return a new state object instead of mutating.
 
 ---
 
 ## Maintainability
 
-### 7. Auth hook duplication
+### 4. Auth hook duplication
+
 **Files:** `hooks/useConnectAccount.ts`, `hooks/useConnectTerminal.ts`
 
-~90% identical — same QR/barcode scanner logic, same error handling, same flow. Only differ in URL prefix and the final API call.
+~90% identical code: identical barcode scanner lifecycle, identical error/loading handling, identical iOS scanner-dismiss logic. They differ in:
 
-**Fix:** Extract `useQRConnection(config: QRConnectionConfig)` base hook, parameterize the differences.
+- URL prefix (`happy:///account?` vs `happy://terminal?`)
+- Final API call (`authAccountApprove` vs `authApprove`) — terminal flow also bundles a v2 response with `sync.encryption.contentDataKey`
+- Success/error i18n keys
 
----
+**Fix:** Extract a base hook parameterized by a config object:
 
-### 8. Loose TypeScript in machine update handler
-**File:** `sync/sync.ts:~2000`
+```ts
+interface QRConnectionConfig {
+    urlPrefix: string;
+    approve: (token: string, publicKey: Uint8Array, secret: Uint8Array) => Promise<Response>;
+    successMessageKey: string;
+    failureMessageKey: string;
+}
+export function useQRConnection(config: QRConnectionConfig) { /* shared logic */ }
+```
 
-`updateData` fields are accessed directly without runtime validation. A malformed server payload silently corrupts machine state (wrong defaults, missing fields).
-
-**Fix:** Add Zod schema validation at the boundary before merging into state.
+The terminal-specific v2 bundle can be built inside its `approve` implementation.
 
 ---
 
 ## Minor / Polish
 
-### 9. Console log spam in production
-**File:** `sync/storage.ts:1022–1027` (`applyArtifacts`)
+### 5. Console log spam in production
 
-Artifact apply logs (`🗂️ Storage.applyArtifacts: ...`) not guarded by `__DEV__`.
+**File:** `sync/storage.ts:1022, 1027` (`applyArtifacts`)
 
-**Fix:**
 ```ts
-if (__DEV__) console.log(`🗂️ Storage.applyArtifacts: ...`);
+console.log(`🗂️ Storage.applyArtifacts: Applying ${artifacts.length} artifacts`);
+// ...
+console.log(`🗂️ Storage.applyArtifacts: Total artifacts after merge: ...`);
 ```
+
+Not guarded by `__DEV__`, so they run in production builds.
+
+**Fix:** Gate with `__DEV__` or remove entirely — the info can be obtained from Zustand devtools if needed in dev.
+
+---
+
+## Items removed after verification
+
+The following candidates were evaluated and rejected because the concerns do not hold up against the current code:
+
+- **Artifact key recovery gap** (`sync/sync.ts:1046–1059`) — The recovery path correctly throws on decrypt failure (line 1054–1056) and errors propagate via the surrounding `try/catch`. Not a silent failure.
+- **Message queue race condition** (`sync/sync.ts:291–338`) — JavaScript is single-threaded and `enqueueMessages` contains no `await`, so the get-then-push is atomic. The `.finally()` block at line 331–337 correctly handles the drain-empty-but-flag-still-set window by re-scheduling.
+- **Loose TypeScript on machine update** (`sync/sync.ts:~2000`) — `handleUpdate` already validates incoming payloads at the boundary via `ApiUpdateContainerSchema.safeParse(update)` (line 1772). Zod validation is in place.
