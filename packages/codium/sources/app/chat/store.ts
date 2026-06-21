@@ -3,6 +3,20 @@ import { v4 as uuid } from 'uuid'
 
 export type ChatRole = 'user' | 'assistant'
 
+export interface ChatToolCall {
+    /** SDK content block index — stable across deltas within a turn. */
+    index: number
+    /** Anthropic tool_use id; matches the future tool_result.toolUseId. */
+    id: string
+    name: string
+    /** Raw JSON args, accumulated as input_json_delta lands. May be a
+     *  partial JSON fragment until the block ends. */
+    inputJson: string
+    /** Result text once the tool has run; undefined while pending. */
+    result?: string
+    isError?: boolean
+}
+
 export interface ChatMessage {
     id: string
     role: ChatRole
@@ -10,11 +24,9 @@ export interface ChatMessage {
     text: string
     /** Reasoning summary streamed for thinking-capable models. */
     thinking?: string
-    /** Provider-specific round-trip data for the thinking block — e.g.
-     *  Codex's `encrypted_content` blob that we must echo back on follow-up
-     *  turns to keep reasoning continuity. Untyped because each provider
-     *  defines its own shape. */
-    thinkingVendor?: Record<string, unknown>
+    /** Tool calls the assistant made during this turn, in the order they
+     *  appeared. Each entry's `result` is filled in when the tool returns. */
+    tools?: ChatToolCall[]
     /** Set when the message has finished streaming or produced an error. */
     finished?: boolean
     error?: string
@@ -22,10 +34,18 @@ export interface ChatMessage {
 
 export interface Chat {
     id: string
+    workspaceId?: string
     title: string
     messages: ChatMessage[]
     /** Which model id was used for the most recent assistant turn (for display). */
     modelId?: string
+    /** Caller-generated UUID that doubles as the agent SDK's session id.
+     *  Persisted across turns so follow-ups resume the same session. */
+    sessionId: string
+    /** True once we've sent a `start` for this session in this process.
+     *  Subsequent turns use `send`; restarts after process death use
+     *  `start` with `resume: true`. */
+    sessionStarted?: boolean
     status: 'idle' | 'streaming' | 'error'
     error?: string
     createdAt: number
@@ -34,8 +54,8 @@ export interface Chat {
 
 /* ─────────── store ─────────── */
 
-const chatsAtom = atom<Record<string, Chat>>({})
-const chatOrderAtom = atom<string[]>([])
+export const chatsAtom = atom<Record<string, Chat>>({})
+export const chatOrderAtom = atom<string[]>([])
 
 /** All chats, newest-first. */
 export const chatListAtom = atom((get) => {
@@ -43,6 +63,30 @@ export const chatListAtom = atom((get) => {
     const order = get(chatOrderAtom)
     return order.map((id) => chats[id]).filter((c): c is Chat => Boolean(c))
 })
+
+/** Replace the entire store from a persisted snapshot (boot path). Strips
+ *  transient runtime fields so a chat that was streaming when the app died
+ *  reopens as idle, not stuck mid-stream. */
+export const hydrateChatsAtom = atom(
+    null,
+    (_get, set, snapshot: { chats: Record<string, Chat>; order: string[] }) => {
+        const sanitized: Record<string, Chat> = {}
+        for (const [id, c] of Object.entries(snapshot.chats)) {
+            if (!c) continue
+            sanitized[id] = {
+                ...c,
+                status: 'idle',
+                error: undefined,
+                messages: c.messages.map((m) => ({
+                    ...m,
+                    finished: m.finished ?? true,
+                })),
+            }
+        }
+        set(chatsAtom, sanitized)
+        set(chatOrderAtom, snapshot.order.filter((id) => id in sanitized))
+    },
+)
 
 /** A specific chat by id. */
 export const chatByIdAtomFamily = (id: string) =>
@@ -52,7 +96,7 @@ export const chatByIdAtomFamily = (id: string) =>
 
 export const createChatAtom = atom(
     null,
-    (_get, set, init: { title?: string; firstUserMessage?: string }) => {
+    (_get, set, init: { title?: string; firstUserMessage?: string; workspaceId?: string }) => {
         const id = uuid()
         const now = Date.now()
         const messages: ChatMessage[] = []
@@ -61,8 +105,10 @@ export const createChatAtom = atom(
         }
         const chat: Chat = {
             id,
+            workspaceId: init.workspaceId,
             title: init.title ?? init.firstUserMessage?.slice(0, 60) ?? 'New chat',
             messages,
+            sessionId: uuid(),
             status: 'idle',
             createdAt: now,
             updatedAt: now,
@@ -114,4 +160,19 @@ export const updateChatAtom = atom(
             return { ...prev, [args.chatId]: { ...c, ...args.patch, updatedAt: Date.now() } }
         })
     }
+)
+
+/** Drop a chat. The Agent SDK's session jsonl on disk is left alone — if
+ *  we ever re-create a chat with the same sessionId it'd resume there. */
+export const deleteChatAtom = atom(
+    null,
+    (_get, set, chatId: string) => {
+        set(chatsAtom, (prev) => {
+            if (!(chatId in prev)) return prev
+            const next = { ...prev }
+            delete next[chatId]
+            return next
+        })
+        set(chatOrderAtom, (prev) => prev.filter((id) => id !== chatId))
+    },
 )

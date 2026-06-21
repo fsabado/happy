@@ -82,6 +82,34 @@ pnpm --filter happy run build
 
 Report success/failure. Stop on failure.
 
+### Step 5b: Self-host server split
+
+The `happy` npm package no longer bundles the self-host server binary or webapp.
+Packaged installs resolve those from the separately installed
+`happy-server-self-host` package. Do not rebuild or ship `tools/server` or
+`tools/webapp` as part of a CLI release.
+
+If the CLI release depends on self-host server changes, release
+`happy-server-self-host` separately: regenerate Prisma, build the bundled webapp
+with `pnpm --filter happy-server-self-host run bundle:webapp`, then publish the
+server package. The server package is a JS/TS npm package; npm handles platform
+specific dependencies such as Prisma and sharp normally. Do not pass
+`--ignore-scripts` when publishing it; its `prepublishOnly` script rebuilds the
+runtime, rebuilds the webapp, and runs tests before npm receives the tarball.
+
+Before handing a server publish to the user, pre-run the full `prepublishOnly`
+chain yourself to catch failures early — the `bundle:webapp` step runs a multi-minute
+`expo export`, and the server unit suite is **not** part of the GitHub CI gate, so
+`main` can be red even when the PR "passed":
+
+```bash
+cd packages/happy-server && pnpm run build && pnpm run bundle:webapp && pnpm test
+```
+
+(Observed: `1332` merged a `standalone.spec.ts` test that only passes on Windows
+because the impl used POSIX `path.basename`; it was red on `main` and would have
+aborted the publish at the `prepublishOnly` test step.)
+
 ### Step 6: Test (unit only)
 
 ```bash
@@ -98,20 +126,75 @@ Report results. If failures, ask the user whether to proceed or abort.
 
 ```bash
 cd packages/happy-cli
-pnpm publish --tag {channel} --no-git-checks --ignore-scripts
+pnpm publish --tag {channel} --no-git-checks
 ```
 
 - `--no-git-checks`: allows dirty working tree (we already verified state)
-- `--ignore-scripts`: skips `prepublishOnly` (we already built and tested)
+
+⚠️ **NEVER pass `--ignore-scripts`.** `prepublishOnly` runs `pnpm test` (build +
+unit tests), and **the build re-stamps the version into the bundle** (Step 4).
+Skipping it ships whatever stale `dist/` happens to be on disk. Two rationalizations
+look reasonable and are both WRONG:
+
+- *"We already built + tested this session, so the scripts are redundant — skip them
+  to go faster."* That earlier build may predate the version bump (or a dependency
+  change). The on-disk `dist/` is then stamped with the OLD version, and
+  `--ignore-scripts` ships it. **This actually happened: `1.1.10-beta.9` was published
+  with `--ignore-scripts` and shipped a bundle stamped `beta.8`** — `happy --version`
+  reported `beta.8` while npm metadata said `beta.9`. npm versions are immutable, so
+  the only fix was bumping to `beta.10` and re-releasing. A wasted version number and
+  a broken publish, to save one ~1-minute rebuild.
+- *"It makes the TLS-failure retries faster."* The `prepublishOnly` rebuild on each
+  retry is the price of correctness, not overhead to trim. If retries are painful,
+  change the network (see the TLS note above) — do NOT skip scripts.
+
+If you catch yourself reasoning toward `--ignore-scripts`, stop: there is no case in
+this repo where it is correct for a publish.
+
+**MUST use `pnpm publish` — never `npm publish`.** This is a pnpm workspace; `npm
+publish` mis-resolves the workspace protocol and the `bin` entries and ships a
+broken tarball (a regression was reported for exactly this and the fix was to
+standardize on `pnpm publish`). `pnpm publish` is the only supported path. Do not
+"fall back" to `npm publish` if pnpm errors — diagnose the pnpm error instead.
+
+**Transient TLS upload failures are expected — retry, don't panic.** The tarball
+is large (~160 MB, ~1000 files). The upload to `registry.npmjs.org` frequently
+dies mid-stream with:
+
+```
+npm error code ERR_SSL_SSL/TLS_ALERT_BAD_RECORD_MAC
+npm error ... ssl3_read_bytes:ssl/tls alert bad record mac ...
+```
+
+This is network-layer corruption of a single TLS record on the long upload, **not**
+a code, auth, or version problem. A single bad record kills the whole stream, so
+each fresh attempt has an independent chance to complete. Just re-run the exact
+same `pnpm publish` command — it typically succeeds within 2–3 attempts (it took
+3 on the 1.1.10-beta.4 release). Before each retry, confirm it did NOT actually
+land (see Step 8); npm rejects re-publishing an already-published version, which
+would be a misleading error. A clean success prints `+ happy@X.Y.Z`.
 
 ### Step 8: Verify
 
 ```bash
-npm view happy dist-tags
+npm view happy@{version} version   # did the version actually publish?
+npm view happy dist-tags           # did the channel tag move?
 ```
 
-Confirm the new version appears under the correct tag.
-If `latest` doesn't move immediately, wait 10-15 seconds and check again; npm tag propagation is not always instant.
+Check `npm view happy@X.Y.Z version` first — it returns the version string if the
+publish landed (use this between TLS retries to avoid double-publishing, and to
+distinguish a real failure from a cosmetic upload error).
+
+⚠️ **This metadata check is necessary but NOT sufficient.** `npm view ... version`
+only confirms the tarball was *accepted* — it says nothing about what's *inside* it.
+A bundle stamped with the wrong version (the `--ignore-scripts` footgun above) passes
+this check cleanly. The authoritative check is the bundle itself in Step 11
+(`happy --version` after a real install). Never report a release as done on the
+metadata check alone.
+
+Then confirm the new version appears under the correct dist-tag. The tag often
+lags the publish by 10–40s — poll a few times before concluding it failed; npm
+tag propagation is not instant.
 
 ### Step 9: Git tag + commit (latest only)
 
@@ -191,18 +274,25 @@ underlying `eas update` directly with `--message`:
   cd packages/happy-app && eas build --profile development --platform all --non-interactive
   ```
 
-- **TestFlight / Play Store builds** — use `-store` profiles for distribution via TestFlight and Play Store
+- **TestFlight / Play Store builds** — use `-store` profiles for distribution via TestFlight and Play Store.
+  **Always pass `--auto-submit`** so the build goes straight to TestFlight after completion.
   ```bash
   # Preview (TestFlight/internal testing)
-  cd packages/happy-app && eas build --profile preview-store --platform ios --non-interactive
+  cd packages/happy-app && eas build --profile preview-store --platform ios --non-interactive --auto-submit
+
+  # Dev (TestFlight, points to dev server)
+  cd packages/happy-app && eas build --profile development-store --platform ios --non-interactive --auto-submit
 
   # Production (App Store / Play Store submission)
-  pnpm --filter happy-app run release:build:appstore
+  cd packages/happy-app && eas build --profile production --platform ios --non-interactive --auto-submit
   ```
 
 **IMPORTANT:** Always pass `--non-interactive` to `eas build` commands. Without it,
 EAS prompts for Apple account login interactively which breaks in non-TTY contexts
 (Claude Code, CI). Remote credentials are already configured on EAS servers.
+
+**IMPORTANT:** Always pass `--auto-submit` to `-store` builds. Without it, the build
+finishes but never reaches TestFlight — you have to manually submit with `eas submit`.
 
 ### EAS Build Profiles
 
@@ -228,8 +318,12 @@ Runtime version "20" — bump when native code changes to invalidate OTA.
 ### App Store Connect
 
     Apple ID:    steve@bulkovo.com
-    ASC App ID:  126165711
     Team ID:     466DQWDR8C
+
+    App Store Connect App IDs:
+    Production:   6748571505  (com.ex3ndr.happy)
+    Preview:      6749025570  (com.slopus.happy.preview)
+    Development:  6748984254  (com.slopus.happy.dev)
 
 ---
 
@@ -276,11 +370,23 @@ Separate repo, not part of this monorepo. Guide the user to push to that repo.
 
 ---
 
+## Writing release notes (the in-app changelog)
+
+`CHANGELOG.md` is regenerated into `changelog.json` and shown **inside the mobile app, on a phone, right after an OTA update**. Write for that reader.
+
+1. **Investigate before writing — use subagents (Opus).** Don't infer from commit titles. Spawn parallel subagents to read the actual code + git history of each candidate change and classify it: user-visible UX vs impl detail, default-on vs gated, new vs polish/fix.
+2. **Default-off ⇒ exclude.** A change behind a setting/experimental flag that defaults to OFF (or whose UI entry point is hidden) is a silent ship — omit it until it's on by default. Same for impl / perf-internal / refactor / type-only changes.
+3. **Audience is phone users.** Most never touch the CLI or desktop. Be skeptical of CLI-only / desktop-only / web-only / beta-only items — a genuinely strong feature can still be wrong for *this* venue; announce those in CLI release notes / docs / GitHub instead.
+4. **Ask, don't assume.** When announce-vs-silent-ship, default state, or scope is unclear, ask the owner and confirm the final include/exclude list before writing. Never headline-announce on your own judgment.
+5. **Voice:** benefit-first, terse, em-dash, one line per item, grouped as a dated themed entry like existing ones. Edit `CHANGELOG.md` only, then regenerate via `tsx packages/happy-app/sources/scripts/parseChangelog.ts`.
+
 ## Rules
 
+- **Release notes: investigate with subagents, exclude default-off, ask when unsure** — see "Writing release notes" above.
 - **Always present options** — never assume which component, channel, or version.
 - **Always verify before publishing** — show the user what will be published and get confirmation.
+- **Do not bundle self-host server/webapp into `happy`** — self-host runtime and the bundled webapp ship through `happy-server-self-host`, not the main CLI package.
 - **Unit tests are the gate, not integration tests** — integration tests are slow and have flaky abort/interrupt tests.
 - **Use pnpm publish, not npm publish** — avoids workspace protocol issues.
-- **Use --ignore-scripts** — we build and test explicitly, no need for prepublishOnly to redo it.
+- **Never use --ignore-scripts for package publishing** — prepublish scripts are the last guard before npm receives the tarball.
 - **Never force-push tags** — if a tag exists, stop and ask.

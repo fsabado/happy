@@ -75,3 +75,10 @@ happy-workspaces/
 # Python venvs and MkDocs build output
 .venv/
 site/
+
+# local HAPPY_HOME_DIR for self-host testing
+.happy-fully-local/
+.happy-dev/
+
+# third party tools
+.supervibe/

@@ -38,10 +38,10 @@ html.is-resizing-sidebar .app__toolbar {
 
 .app__sidebar-header,
 .app__sidebar-section-header {
-    padding: 8px 8px 4px;
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    /* Match Codex: regular case 13px, no tracking, slight indent. */
+    padding: 8px 8px 2px;
+    font-size: var(--text-base);
+    line-height: 1.5;
     color: var(--color-text-foreground-tertiary);
 }
 
@@ -76,6 +76,10 @@ html.is-resizing-sidebar .app__toolbar {
 .app__nav-item--active:focus-visible {
     background: var(--color-active);
     color: var(--color-text-foreground);
+}
+
+.app__nav-item--nested {
+    padding-left: 20px;
 }
 
 .app__nav-item > span {
@@ -114,6 +118,14 @@ html.is-resizing-sidebar .app__toolbar {
     min-width: 0;
 }
 
+/* Truncate long chat titles instead of wrapping. */
+.app__sidebar-row-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
 .app__sidebar-row-close {
     display: inline-flex;
     align-items: center;
@@ -139,4 +151,81 @@ html.is-resizing-sidebar .app__toolbar {
 .app__sidebar-row-close:hover {
     background: var(--color-hover);
     color: var(--color-text-foreground);
+}
+
+.app__project {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.app__project-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 0;
+}
+
+.app__project-title {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    color: var(--color-text-foreground-secondary);
+    font-size: var(--text-sm);
+}
+
+.app__project-title span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app__project-add {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--color-text-foreground-tertiary);
+}
+
+.app__project-add:hover,
+.app__project-add:focus-visible {
+    background: var(--color-hover);
+    color: var(--color-text-foreground);
+}
+
+.app__context-menu {
+    min-width: 164px;
+    padding: 4px;
+    border: 1px solid var(--color-border-light);
+    border-radius: 8px;
+    background: var(--color-background-elevated-primary-opaque);
+    box-shadow: 0 12px 28px color-mix(in srgb, #000 18%, transparent);
+    z-index: 1000;
+}
+
+.app__context-menu-item {
+    display: flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    color: var(--color-text-foreground);
+    font-size: var(--text-sm);
+    outline: none;
+}
+
+.app__context-menu-item[data-highlighted] {
+    background: var(--color-hover);
+}
+
+.app__context-menu-item--danger {
+    color: var(--color-decoration-deleted);
 }
