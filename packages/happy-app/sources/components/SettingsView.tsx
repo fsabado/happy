@@ -219,7 +219,7 @@ export const SettingsView = React.memo(function SettingsView() {
                 </View>
             </View>
 
-            {/* Connect Terminal - QR scan on native, URL paste on web */}
+            {/* Connect Terminal - Only show on native platforms */}
             {Platform.OS !== 'web' && (
                 <ItemGroup>
                     <Item
@@ -245,29 +245,6 @@ export const SettingsView = React.memo(function SettingsView() {
                                 connectWithUrl(url.trim());
                             }
                         }}
-                        showChevron={false}
-                    />
-                </ItemGroup>
-            )}
-            {Platform.OS === 'web' && (
-                <ItemGroup>
-                    <Item
-                        title={t('connect.enterUrlManually')}
-                        icon={<Ionicons name="link-outline" size={29} color="#007AFF" />}
-                        onPress={async () => {
-                            const url = await Modal.prompt(
-                                t('modals.authenticateTerminal'),
-                                t('modals.pasteUrlFromTerminal'),
-                                {
-                                    placeholder: 'happy://terminal?...',
-                                    confirmText: t('common.authenticate')
-                                }
-                            );
-                            if (url?.trim()) {
-                                connectWithUrl(url.trim());
-                            }
-                        }}
-                        loading={isLoading}
                         showChevron={false}
                     />
                 </ItemGroup>

@@ -55,10 +55,6 @@ export function useConnectTerminal(options?: UseConnectTerminalOptions) {
     }, [auth.credentials, options]);
 
     const connectTerminal = React.useCallback(async () => {
-        if (Platform.OS === 'web') {
-            // Camera scanner unavailable on web; caller should use connectWithUrl.
-            return;
-        }
         if (await checkScannerPermissions()) {
             // Use camera scanner
             CameraView.launchScanner({
@@ -73,10 +69,9 @@ export function useConnectTerminal(options?: UseConnectTerminalOptions) {
         return await processAuthUrl(url);
     }, [processAuthUrl]);
 
-    // Set up barcode scanner listener (native only)
+    // Set up barcode scanner listener
     const isProcessingRef = React.useRef(false);
     React.useEffect(() => {
-        if (Platform.OS === 'web') return;
         if (CameraView.isModernBarcodeScannerAvailable) {
             const subscription = CameraView.onModernBarcodeScanned(async (event) => {
                 if (isProcessingRef.current) return;
